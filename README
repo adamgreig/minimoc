@@ -1,0 +1,21 @@
+minimoc
+mini motor controller
+=====================
+
+it's a smallish (1.7 by 0.9 inches), two-layer, single-sided motor controller
+for brushless dc motors up to around 20 amps. an atmega8-series mcu drives
+three half-h-bridges with the onboard pwm, reading the back emf to determine
+commutation point. other onboard facilities include current measuring, some
+status leds, battery voltage monitoring and an i2c interface for control.
+the battery and motor connect via screw terminals, or directly soldered wire
+for lower-profile circuits.
+
+all code is licensed under the gnu public license v3, but get in touch if you
+have particular needs besides that.
+
+pcb designs are available online at the project homepage,
+https://randomskk.net/quad/mc
+
+adam greig
+random@randomskk.net
+jan 2010

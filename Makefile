@@ -20,4 +20,5 @@ upload: hex
 	avrdude -p $(MMCPU) -c usbtiny -U flash:w:$(TARGET).hex
  
 clean:
-	rm $(SRCS:=.o) $(TARGET).hex $(TARGET).el
+	rm $(SRCS:=.o) $(TARGET).hex $(TARGET).elf
+

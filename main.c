@@ -16,3 +16,59 @@
 //  along with minimoc.  If not, see <http://www.gnu.org/licenses/>.
 //
 
+#include <stdint.h>
+#include <avr/interrupt.h>
+#include <avr/io.h>
+#include <avr/wdt.h>
+#include <util/delay.h>
+
+#include "pins.h"
+
+// Initialise GPIOs
+void init_io() {
+    DRIVE_DDR = (1<<AP) | (1<<AM) | (1<<BP) | (1<<BM) | (1<<CP) | (1<<CM);
+    BEMF_DDR = (0<<BEMF_A) | (0<<BEMF_B) | (0<<BEMF_C);
+}
+
+// Read an ADC input, return result
+uint16_t read_adc(uint8_t adc) {
+    ADMUX = (1<<REFS0) | adc;                       //Select ADC channel
+    ADCSRA = (1<<ADEN) | (1<<ADSC) | (1<<ADPS2);    //Enable with 1/16 clk
+    while(ADCSRA & (1<<ADSC)) {}                    //Wait for conversion
+    return (uint16_t)(ADCH<<8 | ADCL);              //Return result
+}
+
+// Set PWM output on one channel
+void set_pwm(uint8_t pin, uint8_t dutycycle) {
+    if(dutycycle < 0 || dutycycle > 255)            //Check dutycycle is valid
+        return;
+
+    if((pin == AM || pin == BM || pin == CM) && LOWSIDE_POL == LOW)
+        dutycycle = 255 - dutycycle;                //Compensate for polarity
+
+    if(pin == PB1) {
+        // Timer 1, OC1A
+        TCCR2A = TCCR2B = 0;
+        TCCR1A = (1<<COM1A1) | (1<<WGM10);
+        TCCR1B = (1<<CS11) | (1<<CS10);
+        OCR1A  = dutycycle;
+    } else if(pin == PB2) {
+        // Timer 1, OC1B
+        TCCR1A = (1<<COM1B1) | (1<<WGM10);
+        TCCR1B = (1<<CS11) | (1<<CS10);
+        OCR1B  = dutycycle;
+    } else if(pin == PB3) {
+        // Timer 2, OC2A
+        TCCR1A = TCCR1B = 0;
+        TCCR2A = (1<<COM2A1) | (1<<WGM20);
+        TCCR2B = (1<<CS11) | (1<<CS10);
+        OCR2A  = dutycycle;
+    } else {
+        // Invalid pin
+        return;
+    }
+}
+
+int main() {
+    set_pwm(AM, 26);
+}

@@ -108,6 +108,7 @@ int main() {
     power_down();
     init_i2c();
     wdt_enable(WDTO_120MS);
+    light_led(LED_OK);
 
     for(;;) {
         wdt_reset();

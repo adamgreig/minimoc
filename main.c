@@ -30,6 +30,15 @@ void init_io() {
     BEMF_DDR = (0<<BEMF_A) | (0<<BEMF_B) | (0<<BEMF_C);
 }
 
+// Stop all drive activity
+void power_down() {
+    if(LOWSIDE_POL == LOW) {
+        DRIVE_PORT = (1<<AM) | (1<<BM) | (1<<CM);
+    } else {
+        DRIVE_PORT = 0;
+    }
+}
+
 // Read an ADC input, return result
 uint16_t read_adc(uint8_t adc) {
     ADMUX = (1<<REFS0) | adc;                       //Select ADC channel
@@ -54,6 +63,7 @@ void set_pwm(uint8_t pin, uint8_t dutycycle) {
         OCR1A  = dutycycle;
     } else if(pin == PB2) {
         // Timer 1, OC1B
+        TCCR2A = TCCR2B = 0;
         TCCR1A = (1<<COM1B1) | (1<<WGM10);
         TCCR1B = (1<<CS11) | (1<<CS10);
         OCR1B  = dutycycle;
@@ -70,5 +80,11 @@ void set_pwm(uint8_t pin, uint8_t dutycycle) {
 }
 
 int main() {
-    set_pwm(AM, 26);
+    init_io();
+    power_down();
+    wdt_enable(WDTO_120MS);
+
+    for(;;) {
+        wdt_reset();
+    }
 }

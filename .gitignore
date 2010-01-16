@@ -1,4 +1,5 @@
 *.o
-minimoc.hex
+*.hex
+*.elf
 *.swp
 *~

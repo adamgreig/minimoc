@@ -28,6 +28,7 @@
 void init_io() {
     DRIVE_DDR = (1<<AP) | (1<<AM) | (1<<BP) | (1<<BM) | (1<<CP) | (1<<CM);
     BEMF_DDR = (0<<BEMF_A) | (0<<BEMF_B) | (0<<BEMF_C);
+    LED_DDR = (1<<LED_OK) | (1<<LED_ERR);
 }
 
 // Stop all drive activity
@@ -37,6 +38,29 @@ void power_down() {
     } else {
         DRIVE_PORT = 0;
     }
+    LED_PORT = 0;
+}
+
+// Turn on I2C slave functionality
+void init_i2c() {
+    //TODO work out a suitable I²C address
+    uint8_t address = 0x40;
+    address |= (ADDR_PIN | ((1<<ADDR1)|(1<<ADDR2)));
+
+    //Bit rate 100kHz
+    TWBR = 32;
+    TWCR = (1<<TWEA) | (1<<TWEN);
+    TWAR = address << 1;
+}
+
+// Light up an LED
+void light_led(uint8_t led) {
+    LED_PORT |= (1<<led);
+}
+
+// Clear an LED
+void clear_led(uint8_t led) {
+    LED_PORT &= ~(1<<led);
 }
 
 // Read an ADC input, return result
@@ -82,6 +106,7 @@ void set_pwm(uint8_t pin, uint8_t dutycycle) {
 int main() {
     init_io();
     power_down();
+    init_i2c();
     wdt_enable(WDTO_120MS);
 
     for(;;) {

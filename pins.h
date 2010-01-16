@@ -44,4 +44,12 @@
 // Status LEDs
 #define LED_OK PD3
 #define LED_ERR PD4
+#define LED_PORT PORTD
+#define LED_DDR DDRD
+
+// Address solder jumper
+#define ADDR1 PD2
+#define ADDR2 PD3
+#define ADDR_PIN PIND
+#define ADDR_DDR DDRD
 

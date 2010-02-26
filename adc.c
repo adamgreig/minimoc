@@ -1,6 +1,6 @@
 // minimoc
 // mini motor controller
-// pins.h - which pins map to which functions
+// adc.c - adc related functionality
 // copyright 2010 adam greig
 //
 //  This file is part of minimoc.
@@ -16,42 +16,15 @@
 //  along with minimoc.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#pragma once
+#include "adc.h"
 
-// Bridge driving channels
-#define AP PB3
-#define AM PB5
-#define BP PB2
-#define BM PB4
-#define CP PB1
-#define CM PB0
-#define DRIVE_PORT PORTB
-#define DRIVE_DDR DDRB
-
-// Polarity to drive the bridge
-#define HIGH 1
-#define LOW 0
-
-// Back EMF ADC multiplexer masks
-#define BEMF_A 1
-#define BEMF_B 0
-#define BEMF_C 7
-#define BEMF_A_PIN PC1
-#define BEMF_B_PIN PC0
-#define BEMF_C_PIN PC0
-#define BEMF_PORT PORTC
-#define BEMF_DDR DDRC
-#define VBATT 6
-
-// Status LEDs
-#define LED_OK PD0
-#define LED_ERR PD1
-#define LED_PORT PORTD
-#define LED_DDR DDRD
-
-// Address solder jumper
-#define ADDR1 PD2
-#define ADDR2 PD3
-#define ADDR_PIN PIND
-#define ADDR_DDR DDRD
+// Read an ADC input, return result
+uint16_t read_adc(uint8_t adc) {
+    ADMUX = (1<<REFS0) | adc;                       //Select ADC channel
+    ADCSRA = (1<<ADEN) | (1<<ADSC) | (1<<ADPS2);    //Enable with 1/16 clk
+    while(ADCSRA & (1<<ADSC)) {}                    //Wait for conversion
+    uint16_t high = ADCH;
+    high <<= 8;
+    return high | ADCL;                             //Return result
+}
 

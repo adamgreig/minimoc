@@ -28,68 +28,18 @@
 #include "adc.h"
 #include "util.h"
 
-extern uint8_t lowside[6];
-extern uint8_t highside[6];
-extern uint8_t bemfs[6];
-
-void run() {
-    unsigned int i;
-    for(i=0; i<100; i++) {
-        DRIVE_PORT = lowside[0];
-        set_pwm(highside[0], 80);
-        delay(2500);
-        power_down();
-        delay(750);
-
-        DRIVE_PORT = lowside[1];
-        set_pwm(highside[1], 80);
-        delay(2500);
-        power_down();
-        delay(750);
-
-        DRIVE_PORT = lowside[2];
-        set_pwm(highside[2], 80);
-        delay(2500);
-        power_down();
-        delay(750);
-
-        DRIVE_PORT = lowside[3];
-        set_pwm(highside[3], 80);
-        delay(2500);
-        power_down();
-        delay(750);
-
-        DRIVE_PORT = lowside[4];
-        set_pwm(highside[4], 80);
-        delay(2500);
-        power_down();
-        delay(750);
-
-        DRIVE_PORT = lowside[5];
-        set_pwm(highside[5], 80);
-        delay(2500);
-        power_down();
-        delay(750);
-    }
-}
-
 int main() {
     init_io();
     power_down();
     //wdt_enable(WDTO_120MS);
     light_led(LED_OK);
 
-    if((read_adc(6) / 2) < 230) {
-        clear_led(LED_OK);
-        for(;;) {
-            light_led(LED_ERR);
-            delay(100000);
-            clear_led(LED_ERR);
-            delay(100000);
-        }
+    if(read_adc(VBATT) < 460) {
+        error();
     }
 
     startup();
+    sei();
     run();
     power_down();
 }

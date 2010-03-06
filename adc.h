@@ -19,6 +19,7 @@
 #pragma once
 #include <stdint.h>
 #include <avr/io.h>
+#include <avr/interrupt.h>
 
 // Read an ADC input, return result
 uint16_t read_adc(uint8_t adc);

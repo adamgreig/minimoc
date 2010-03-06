@@ -41,21 +41,39 @@ void set_pwm(uint8_t pin, uint8_t dutycycle) {
         TCCR1A = (1<<COM1A1) | (1<<WGM10);
         TCCR1B = (1<<CS11) | (1<<CS10);
         OCR1A  = dutycycle;
+        TIMSK1 = (1<<TOIE1);
+        TIMSK2 = (0<<TOIE2);
     } else if(pin == PB2) {
         // Timer 1, OC1B
         TCCR2A = TCCR2B = 0;
         TCCR1A = (1<<COM1B1) | (1<<WGM10);
         TCCR1B = (1<<CS11) | (1<<CS10);
         OCR1B  = dutycycle;
+        TIMSK1 = (1<<TOIE1);
+        TIMSK2 = (0<<TOIE2);
     } else if(pin == PB3) {
         // Timer 2, OC2A
         TCCR1A = TCCR1B = 0;
         TCCR2A = (1<<COM2A1) | (1<<WGM20);
         TCCR2B = (1<<CS11) | (1<<CS10);
         OCR2A  = dutycycle;
+        TIMSK1 = (0<<TOIE1);
+        TIMSK2 = (1<<TOIE2);
     } else {
         // Invalid pin
         light_led(LED_ERR);
         return;
     }
+}
+
+// Interrupt fires on timer overflow, at which point it's safe to take an ADC reading
+// (for timer1)
+ISR(TIMER1_OVF_vect) {
+    check_bemf();
+}
+
+// Interrupt fires on timer overflow, at which point it's safe to take an ADC reading
+// (for timer2)
+ISR(TIMER2_OVF_vect) {
+    check_bemf();
 }

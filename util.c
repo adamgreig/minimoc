@@ -23,3 +23,13 @@ void delay(unsigned long int period) {
         asm("nop\r\n");
 }
 
+
+void error() {
+    clear_led(LED_OK);
+    for(;;) {
+        light_led(LED_ERR);
+        delay(100000);
+        clear_led(LED_ERR);
+        delay(100000);
+    }
+}

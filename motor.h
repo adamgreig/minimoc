@@ -25,6 +25,9 @@
 #include "led.h"
 #include "io.h"
 #include "util.h"
+#include "adc.h"
 
 void startup();
+void run();
+void check_bemf();
 

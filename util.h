@@ -19,5 +19,9 @@
 #pragma once
 #include <stdint.h>
 
+#include "led.h"
+#include "pins.h"
+
 void delay(unsigned long int period);
+void error();
 

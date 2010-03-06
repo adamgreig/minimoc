@@ -22,6 +22,7 @@
 #include <avr/interrupt.h>
 
 #include "led.h"
+#include "motor.h"
 
 // Initialise GPIOs
 void init_io();

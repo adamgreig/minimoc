@@ -18,52 +18,57 @@
 
 #include "motor.h"
 
-
 uint8_t lowside[6] = { 1<<AM, 1<<AM, 1<<BM, 1<<BM, 1<<CM, 1<<CM };
 uint8_t highside[6] = { BP, CP, CP, AP, AP, BP };
 uint8_t bemfs[6] = { BEMF_C, BEMF_B, BEMF_A, BEMF_C, BEMF_B, BEMF_A };
 
+uint8_t phase;
+uint16_t zerocrossing;
 
 void startup() {
     unsigned long int ontime = 8000;
     unsigned long int offtime = 2400;
     for(; ontime > 2000; ontime -= 100, offtime -= 30) {
-        DRIVE_PORT = lowside[0];
-        set_pwm(highside[0], 80);
-        delay(ontime);
-        power_down();
-        delay(offtime);
-
-        DRIVE_PORT = lowside[1];
-        set_pwm(highside[1], 80);
-        delay(ontime);
-        power_down();
-        delay(offtime);
-
-        DRIVE_PORT = lowside[2];
-        set_pwm(highside[2], 80);
-        delay(ontime);
-        power_down();
-        delay(offtime);
-
-        DRIVE_PORT = lowside[3];
-        set_pwm(highside[3], 80);
-        delay(ontime);
-        power_down();
-        delay(offtime);
-
-        DRIVE_PORT = lowside[4];
-        set_pwm(highside[4], 80);
-        delay(ontime);
-        power_down();
-        delay(offtime);
-
-        DRIVE_PORT = lowside[5];
-        set_pwm(highside[5], 80);
-        delay(ontime);
-        power_down();
-        delay(offtime);
-
+        for(phase = 0; phase < 6; phase++) {
+            DRIVE_PORT = lowside[phase];
+            set_pwm(highside[phase], 80);
+            delay(ontime);
+            power_down();
+            delay(offtime);
+            clear_led(LED_ERR);
+        }
     }
  
 }
+
+void run() {
+    for(;;) {
+        zerocrossing = read_adc(VBATT) / 2;
+        for(phase = 0; phase < 6; phase++) {
+            DRIVE_PORT = lowside[phase];
+            set_pwm(highside[phase], 80);
+            delay(2500);
+            power_down();
+            delay(750);
+            clear_led(LED_ERR);
+        }
+    }
+}
+
+// Read the current BEMF 
+void check_bemf() {
+    uint16_t bemf = read_adc(bemfs[phase]);
+    if(bemf < 230)
+        light_led(LED_ERR);
+    /*
+     *uint16_t delta;
+     *if( bemf < zerocrossing )
+     *    delta = zerocrossing - bemf;
+     *else
+     *    delta = bemf - zerocrossing;
+     *if( delta < 100 ) {
+     *    light_led(LED_ERR);
+     *}
+     */
+}
+
